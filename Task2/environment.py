@@ -23,7 +23,7 @@ class CartPoleEnv():
         self.dt_system = 0.02    #reaction time of the systeme (for real application)
         #Settings for borders
         self.x_limit = 1                         #maximum position
-        self.theta_limit = 40 * 2 * pi / 360   #maximum angle
+        self.theta_limit = 12 * 2 * pi / 360   #maximum angle
         self.x_dot_limit = 15                     #maximum linear velocity
         self.theta_dot_limit = 15                 #maximum angular velocity
         #Others settings
