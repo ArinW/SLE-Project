@@ -28,7 +28,7 @@ class CartPoleEnv():
         self.theta_dot_limit = 50                 #maximum angular velocity
         #Others settings
         self.nb_discretisation = 11           #number of discretisation for each of the 4 states
-        self.Recompenses = [-10000, 0, 0, 100]   #reward for [near to border, neutral, vertical pole, vertical pole and cart in the center]
+        self.Recompenses = [-1, 0, 0, 1]   #reward for [near to border, neutral, vertical pole, vertical pole and cart in the center]
 
 
         ##INITIALIZATION
