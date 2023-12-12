@@ -16,13 +16,13 @@ class CartPoleEnv():
         self.gravity = 9.8
         self.masscart = 1.0
         self.masspole = 0.1
-        self.length = .5        #(half the size)
+        self.length = 0.5        #(half the size)
         self.force_mag = 10.0
         #Setting for numerical calcul
         self.tau = 0.02         #setting for Euler's method
         self.dt_system = 0.02    #reaction time of the systeme (for real application)
         #Settings for borders
-        self.x_limit = 1                         #maximum position
+        self.x_limit = 2.4                         #maximum position
         self.theta_limit = 12 * 2 * pi / 360   #maximum angle
         self.x_dot_limit = 0.5                     #maximum linear velocity
         self.theta_dot_limit = 50                 #maximum angular velocity
@@ -88,7 +88,7 @@ class CartPoleEnv():
             reward = negative_reward
         else:
             reward = neutral_reward
-        return self.state_discrete, reward, done
+        return self.state_discrete, reward, done, self.state
 
 
     def reset(self):
