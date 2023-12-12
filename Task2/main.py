@@ -1,8 +1,3 @@
-"""
-The Inverted Pendulum Balancing Robot by Julien STEYER
-July 2019
-"""
-
 from environment import CartPoleEnv
 from agent import q_learning
 import matplotlib.pyplot as plt
