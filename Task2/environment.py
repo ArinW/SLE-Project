@@ -1,5 +1,6 @@
 from math import cos, sin, pi
 import numpy as np
+from numpy import sign
 
 class CartPoleEnv():
     def __init__(self):
