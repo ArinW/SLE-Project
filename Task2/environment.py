@@ -50,10 +50,13 @@ class CartPoleEnv():
             force = self.force_mag if action == 1 else -self.force_mag
             costheta = cos(theta)
             sintheta = sin(theta)
-            
+
+            #temp = (force - self.polemass_length * theta_dot * theta_dot * sintheta) / self.total_mass
+            #thetaacc = (self.gravity * sintheta - costheta* temp) / (self.length * (1 - self.masspole * costheta * costheta / self.total_mass))
+            #xacc = temp - self.polemass_length * thetaacc * costheta / self.total_mass
+
             thetaacc = (self.gravity * sintheta + costheta * ((-force-self.polemass_length * theta_dot * theta_dot * sintheta + self.mu_c * sign(x_dot)) / self.total_mass) - self.mu_p * heta_dot / self.polemass_length) / (self.length * (4 / 3 - self.masspole * costheta * costheta / self.total_mass))
             xacc = (force + self.polemass_length * (theta_dot * theta_dot * sintheta - thetaacc * costheta) - self.mu_c * sign(x_dot)) / self.total_mass
-            
             x_dot = x_dot + self.tau * xacc
             x = x + self.tau * x_dot
             theta_dot = theta_dot + self.tau * thetaacc
