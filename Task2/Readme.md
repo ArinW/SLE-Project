@@ -1,8 +1,8 @@
 ## Contents:
 0. [Installation](#installation)
 1. [Intoduction](#introduction)
-2. [Approach](#approach)
-3. [Results](#results)
+2. [The agent](#agent)
+3. [The environment](#environment)
 4. [Files structure](#file)
 
 
@@ -25,7 +25,7 @@ The objective being to achieve [this type of behavior.](https://www.youtube.com/
 
 This will be achieved using a reinforcement learning algorithm.</p>
 
-
+<a id='agent'></a>
 ### The agent
 <p align="justify">The goal of the agent, or more specifically of the algorithm that governs his behavior, is to maximize the value of the rewards obtained. To do so, it records a weighted average of the rewards obtained according to the actions At taken in the environment at the state St.
 
@@ -33,7 +33,7 @@ Among the many reinforcement learning algorithms available in the literature, I 
 
 The Q-Learning algorithm works using a matrix called Q-table, which has each doublet of state and action (St,At) associated with the weighted average of the rewards obtained.</p>
 
-
+<a id='environment'></a>
 ### The environment
 <p align="justify">It was also necessary to model the environment in which the agent evolves, in our case a two-dimensional physical model of the pendulum's behavior.
 It can be obtained simply by applying <i>"Newton's Laws of Motion"</i>.</p>
@@ -56,9 +56,8 @@ It is possible to modify the hyperparameters of the algorithm by modifying the v
 
 ```python
 #Settings for Qlearning's algorithm
-learning_rate = 0.6
-gamma = 0.99
-iteration = 700
+for x in range(2000, 4000, 1000):
+    Q, total_reward, successful_episodes = q_learning(environment1, learning_rate=0.05, gamma=0.99, total_iteration=x, show=True)
 ```
 
 
@@ -78,21 +77,29 @@ Several variables are also very important for environmental modeling, including 
 
 ```python
 #Settings for borders
-self.x_limit = 1                         #maximum position
-self.theta_limit= 40 * 2 * pi / 360   #maximum angle
-self.x_dot_limit = 15                     #maximum linear velocity
-self.theta_dot_limit = 15                 #maximum angular velocity
+self.gravity = 9.8
+self.masscart = 1.0
+self.masspole = 0.1
+self.length = 0.5        #(half the size)
+self.force_mag = 10.0
+self.mu_c = 0.0005
+self.mu_p = 0.000002
+#Setting for numerical calcul
+self.tau = 0.02         #setting for Euler's method
+self.dt_system = 0.02    #reaction time of the systeme (for real application)
+#Settings for borders
+self.x_limit = 2.4                         #maximum position
+self.theta_limit = 12 * 2 * pi / 360   #maximum angle
+self.x_dot_limit = 0.5                     #maximum linear velocity
+self.theta_dot_limit = 50                 #maximum angular velocity
 #Others settings
 self.nb_discretisation = 11           #number of discretisation for each of the 4 states
-self.Recompenses=[-10000, 0, 0, 100]   #reward for [near to border, neutral, vertical pole, vertical pole and cart in the center]
+self.Recompenses = [-1, 0, 0, 1]   #reward for [near to border, neutral, vertical pole, vertical pole and cart in the center]
 ```
 
 
 ### agent.py
 The *agent.py* file contains the Q-Learning algorithm which is based on the pseudocode available in *Sutton, R. S., Barto, A. G., Reinforcement Learning: An Introduction [archive]. MIT Press, 1998. 2e édition MIT Press en 2018.*
-
-<p align="center"><img style="display: block; margin: auto;" src="images/QLearning_algorithme.png" /><br>
-<i>Figure 8 - Pseudo code of the Q-learning algorithm</i></p>
 
 Some lines present additional instructions, they have only a technical use, either to display the environment or simply to express logic in python language.
 The only passage with a different logic is the one allowing the application of the exploration/exploitation principle.
