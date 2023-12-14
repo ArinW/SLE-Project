@@ -47,28 +47,6 @@ These equations are solved numerically using the <i>"Euler Method"</i>.
 In order to be able to visualize the behavior of the cart, a modified version of the "CartPole-v1" environment from the gym library is used.</p>
 
 
-
-<a id='results'></a>
-## Results
-
-The execution of the program initially gave modest performances: the bar hold was less than 4 seconds on average.
-<p align="center"><img style="display: block; margin: auto;" src="images/performance_1.png" /><br>
-<i>Figure 5 - Graph showing the average bar hold time as a function of the observed generation</i></p>
-
-<p align="justify">These performances can be improved by a classical technique of reinforcement learning, which consists of implementing code to respond to the exploration/exploitation dilemma. The agent must be able to perform random actions with a decreasing frequency compared to the generation under consideration in order to be able to explore its environment and then, in the end, reach a behavior that only follows the results of the acquired experience.</p>
-
-<p align="center"><img style="display: block; margin: auto;" src="images/performance_2.png" /><br>
-<i>Figure 6 - Graph illustrating the decrease in random actions</i></p>
-
-<p align="justify">It can be seen that the performance have doubled from the previous version thanks to the application of this technique.
-
-Finally, the most effective way to increase performance significantly is to increase the rate of discretization. Tripling the discretization rate at the cost of a long computation time will give better results.</p>
-
-<p align="center"><img style="display: block; margin: auto;" src="images/performance_3.png" /><br>
-<i>Figure 7 - Graph of final performancee</i></p>
-
-
-
 <a id='file'></a>
 ## File structure
 
