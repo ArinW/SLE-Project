@@ -34,7 +34,7 @@ The Q-Learning algorithm works using a matrix called Q-table, which has each dou
 <p align="justify">It was also necessary to model the environment in which the agent evolves, in our case a two-dimensional physical model of the pendulum's behavior.
 
 <p align="center"><img style="display: block; margin: auto;" src="image/model.jpg" /><br>
-<i>Figure 4 - Physical model used</i></p>
+<i>Figure 1 - Physical model used</i></p>
 
 ```python
 thetaacc = (self.gravity * sintheta + costheta * ((-force-self.polemass_length * theta_dot * theta_dot * sintheta + self.mu_c * sign(x_dot)) / self.total_mass) - self.mu_p * heta_dot / self.polemass_length) / (self.length * (4 / 3 - self.masspole * costheta * costheta / self.total_mass))
