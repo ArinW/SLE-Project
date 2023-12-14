@@ -6,7 +6,7 @@ list1 = []
 list2 = []
 list3 = []
 cumulative_reward = 0
-for x in range(2000, 5000, 1000):
+for x in range(1, 2500, 100):
     Q, total_reward, successful_episodes = q_learning(environment1, learning_rate=0.05, gamma=0.99, total_iteration=x, show=True)
     cumulative_reward += total_reward
     list1.append(x)
@@ -19,6 +19,7 @@ print(list3)
 plt.figure(1)
 plt.axis([min(list1), max(list1), 0, max(list2)])
 plt.plot(list1, list2)
+plt.plot(list1, list2, 'o')
 plt.title("Outcome 1")
 plt.xlabel("total_iteration")
 plt.ylabel("total reward received per episode")
