@@ -40,7 +40,10 @@ The Q-Learning algorithm works using a matrix called Q-table, which has each dou
 These equations are solved numerically using the <i>"Euler Method"</i>.
 
 In order to be able to visualize the behavior of the cart, a modified version of the "CartPole-v1" environment from the gym library is used.</p>
-
+```python
+thetaacc = (self.gravity * sintheta + costheta * ((-force-self.polemass_length * theta_dot * theta_dot * sintheta + self.mu_c * sign(x_dot)) / self.total_mass) - self.mu_p * heta_dot / self.polemass_length) / (self.length * (4 / 3 - self.masspole * costheta * costheta / self.total_mass))
+xacc = (force + self.polemass_length * (theta_dot * theta_dot * sintheta - thetaacc * costheta) - self.mu_c * sign(x_dot)) / self.total_mass
+```
 
 <a id='file'></a>
 ## File structure
