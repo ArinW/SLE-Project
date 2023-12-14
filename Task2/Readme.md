@@ -38,7 +38,7 @@ The Q-Learning algorithm works using a matrix called Q-table, which has each dou
 <p align="justify">It was also necessary to model the environment in which the agent evolves, in our case a two-dimensional physical model of the pendulum's behavior.
 It can be obtained simply by applying <i>"Newton's Laws of Motion"</i>.</p>
 
-<p align="center"><img style="display: block; margin: auto;" src="images/pendulum_model.png" /><br>
+<p align="center"><img style="display: block; margin: auto;" src="image/model.jpg" /><br>
 <i>Figure 4 - Physical model used</i></p>
 
 <p align="justify">
