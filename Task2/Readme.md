@@ -113,3 +113,11 @@ else:
      ##'policy derived from Q'
      action = np.argmax(Q[statut[0], statut[1], statut[2], statut[3]])
 ```
+```python
+successful_episodes.append({
+    'episode': iteration,
+    'x_values': episode_states,
+    'theta_values': episode_states1,
+    'num_steps': len(episode_states)
+ })
+```
