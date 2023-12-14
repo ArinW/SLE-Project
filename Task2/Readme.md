@@ -21,10 +21,6 @@ $ py main.py
 
 <p align="justify">The objective of this project is to teach a robotic cart to balance an inverted pendulum by moving the cart along a linear axis. The agent in this case the cart, will have to be able to understand through the acquired experience the combinations of actions to be performed depending on the state of the pendulum to keep the pole in its unstable equilibrium position.
 
-The objective being to achieve [this type of behavior.](https://www.youtube.com/watch?v=Lt-KLtkDlh8)
-
-This will be achieved using a reinforcement learning algorithm.</p>
-
 <a id='agent'></a>
 ### The agent
 <p align="justify">The goal of the agent, or more specifically of the algorithm that governs his behavior, is to maximize the value of the rewards obtained. To do so, it records a weighted average of the rewards obtained according to the actions At taken in the environment at the state St.
@@ -36,7 +32,6 @@ The Q-Learning algorithm works using a matrix called Q-table, which has each dou
 <a id='environment'></a>
 ### The environment
 <p align="justify">It was also necessary to model the environment in which the agent evolves, in our case a two-dimensional physical model of the pendulum's behavior.
-It can be obtained simply by applying <i>"Newton's Laws of Motion"</i>.</p>
 
 <p align="center"><img style="display: block; margin: auto;" src="image/model.jpg" /><br>
 <i>Figure 4 - Physical model used</i></p>
@@ -63,7 +58,6 @@ for x in range(2000, 4000, 1000):
 
 ### environment .py
 The 'environment.py' file contains several methods that are directly extracted from the *CartPole-V1* environment of the *gym* library created by OpenAI.
-Some passages have been modified so that you have direct access to the equations of the motion of the inverted pendulum.
 
 ```python
 #Settings for Qlearning's algorithm
@@ -101,8 +95,7 @@ self.Recompenses = [-1, 0, 0, 1]   #reward for [near to border, neutral, vertica
 ### agent.py
 The *agent.py* file contains the Q-Learning algorithm which is based on the pseudocode available in *Sutton, R. S., Barto, A. G., Reinforcement Learning: An Introduction [archive]. MIT Press, 1998. 2e édition MIT Press en 2018.*
 
-Some lines present additional instructions, they have only a technical use, either to display the environment or simply to express logic in python language.
-The only passage with a different logic is the one allowing the application of the exploration/exploitation principle.
+The passage with a different logic is the one allowing the application of the exploration/exploitation principle.
 
 ```python
 ##'Choose A from S using ...'
