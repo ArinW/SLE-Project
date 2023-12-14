@@ -113,7 +113,7 @@ else:
      ##'policy derived from Q'
      action = np.argmax(Q[statut[0], statut[1], statut[2], statut[3]])
 ```
-We record the most successful one in the cycle.
+We record the most successful one episode in the iteration.
 ```python
 successful_episodes.append({
     'episode': iteration,
