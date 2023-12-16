@@ -1,4 +1,4 @@
-# Subject: SLE Final Project Q2.1(policy Iteration)
+# Subject: SLE Final Project Q2.1(Value Iteration + Optimal Policy Plot )
 
 # Author: Sun Siyuan
 # Date: 12/15/2023
@@ -24,6 +24,9 @@ g = -9.8  # acceleration due to gravity
 dt = 0.02 #per requirement
 MAX_ITERATIONS = 1000  # prevent infinite loops
 CONVERGENCE_THRESHOLD = 1e-4  # Threshold to determine value function convergence
+# Value iteration loop
+delta_threshold = 1e-4  
+iterations = 0
 # -Constants for Boxes System
 xinfin_neg=-100 # we use ±100 represent extreme Cart Velocity beyond the ±0.5 m/s thresholds
 xinfin_pos= 100
@@ -37,9 +40,10 @@ theta_dot_bins = np.array([-np.inf, -50, 50, np.inf]) * np.pi / 180  # in degree
 x_dot_bins = [-np.inf, -0.5, 0.5, np.inf]  # in meters per second
 
 actions = [-10, 10]
-num_states = 6334 #arbitraily defined 
+num_states = 6334 #arbitraily defined
 
 def find_region(region_index): #updated
+    
     # Define the ranges for each state variable
     theta_ranges = [(-12, -6), (-6, -1), (-1, 0), (0, 1), (1, 6), (6, 12)]
     x_ranges = [(-2.4, -0.8), (-0.8, 0.8), (0.8, 2.4)]
@@ -71,7 +75,7 @@ def rand_p(region_index, Number_of_points):#updated
                                random.uniform(*theta_dot_range), 
                                random.uniform(*x_dot_range)] 
                               for _ in range(Number_of_points)])
-    return random_points   
+    return random_points
 
 def discretize_state(theta, x, theta_dot, x_dot): #updated and checked 
     # This discretization allows for a multidimensional state space to be represented as a flat array, 
@@ -101,12 +105,13 @@ def dynamics(theta, x, theta_dot, x_dot, F):#updated and checked
 
     return theta_ddot, x_ddot
 
-def update_state(theta, x, theta_dot, x_dot, F, dt): #updated 
+def update_state(theta, x, theta_dot, x_dot, F, dt):
     theta_ddot, x_ddot = dynamics(theta, x, theta_dot, x_dot, F)
-    return (theta + theta_dot * dt, 
-            x + x_dot * dt, 
-            theta_dot + theta_ddot * dt, 
-            x_dot + x_ddot * dt)
+    new_theta = theta + theta_dot * dt
+    new_x = x + x_dot * dt
+    new_theta_dot = theta_dot + theta_ddot * dt
+    new_x_dot = x_dot + x_ddot * dt
+    return new_theta, new_x, new_theta_dot, new_x_dot
 
 def is_terminal(theta, x):# determine whether a given state of the cart-pole system is considered a terminal state.
     #State where pole has fallen over beyond a recoverable angle, or the cart has moved too far from the center
@@ -135,14 +140,12 @@ def transition_probability(random_points, dt):# Using Bellman Equation
     pb /= len(random_points)
 
     return pb
-       
+
 policy = np.random.choice(actions, size=num_states) # initializes a policy array with random actions
 value_function = np.zeros(num_states) # creates an array to hold the value function, initialized to zeros.
 # ^This array will be used to store the value (expected cumulative reward) of each state under the policy we customized.
 
 trans_prob = np.zeros((num_states, num_states, 2)) #trans_prob='transitional Probability' 
-# This matrix will hold the probabilities of transitioning from one state to another given a particular action. 
-# The dimensions correspond to (current state, next state, action).
 
 def decode_state_index(s): #checked 
     theta_index = int(s / 1000)
@@ -157,92 +160,78 @@ def is_valid_state(theta_index, x_index, theta_dot_index, x_dot_index): #checked
             1 <= theta_dot_index <= 3 and
             1 <= x_dot_index <= 3)
 
-for s in range(num_states): #updated and checked loop. Get Translational Probability Matrix in this round. 
+for s in range(num_states): #updated and checked loop. Get Translational Probability Matrix in this round.
+
     # Decode the state index 's' into discretized state variables
     theta_index, x_index, theta_dot_index, x_dot_index = decode_state_index(s)
     # Check if the state index corresponds to a valid state
     if is_valid_state(theta_index, x_index, theta_dot_index, x_dot_index):
         # Generate random points for this state index
-        rp = rand_p(s, 100)
+        rp = rand_p(s, 10000)
         # Calculate the transition probabilities for these points
         trans_prob[s, :, :] = transition_probability(rp, dt)
 
-#------------------Policy iteration loop------------------------
+# ----Value Iteration Loop-----------------------------------------
 # Maximum valid index values
-MAX_THETA_INDEX = 6
-MAX_X_INDEX = 3
-MAX_THETA_DOT_INDEX = 3
-MAX_X_DOT_INDEX = 3
-is_policy_stable = False
-iterations = 0
-iteration2 = 0
-#iteration3 = 0
-while not is_policy_stable:# needs to embellish n make it more concise. 
+while True:
     iterations += 1
-    print('iteration1=',iterations)
-    # Policy Evaluation
-    while True:
-        iteration2 += 1
-        print('iteration2 = ', iteration2)
-        delta = 0
-        for s in range(num_states):
-         #Decompose the state index into individual indices for each state component
-            theta_index = int(s / 1000)
-            x_index = int((s % 1000) / 100)
-            theta_dot_index = int((s % 100) / 10)
-            x_dot_index = s % 10
-
-            # Skip invalid state combinations
-            if not (1 <= theta_index <= MAX_THETA_INDEX and
-                1 <= x_index <= MAX_X_INDEX and
-                1 <= theta_dot_index <= MAX_THETA_DOT_INDEX and
-                1 <= x_dot_index <= MAX_X_DOT_INDEX):
-               continue
-            # Update the value function
-            current_value = value_function[s]
-            action_index = actions.index(policy[s])  # Action for the current policy
-            expected_return = sum(trans_prob[s, next_state, action_index] * (1 + value_function[next_state])
-                          for next_state in range(1, num_states))
-            delta = max(delta, abs(current_value - expected_return))
-            value_function[s] = expected_return
-            
-        if delta < 1e-4:  
-            break       
-    print('after iteration') 
-            
-    # Policy Improvement
-    is_policy_stable = True
+    delta = 0
     for s in range(num_states):
-        # Decompose the state index into individual components
-        theta_index = int(np.floor(s / 1000))
-        x_index = int(np.floor((s % 1000) / 100))
-        theta_dot_index = int(np.floor((s % 100) / 10))
-        x_dot_index = s % 10
+    # Decompose the state number 's' into its component indices
+        theta_index = int(s // 1000)
+        x_index = int((s % 1000) // 100)
+        theta_dot_index = int((s % 100) // 10)
+        x_dot_index = int(s % 10)
 
-        # Skip invalid state combinations
-        if not (1 <= theta_index <= 6 and 1 <= x_index <= 3 and 
+        # Check if the indices are within the specified ranges
+        if not (1 <= theta_index <= 6 and 1 <= x_index <= 3 and
                 1 <= theta_dot_index <= 3 and 1 <= x_dot_index <= 3):
             continue
 
-        # Calculate the expected return for each action and update the policy
-        old_action = policy[s]
-        expected_returns = [sum(trans_prob[s, next_state, action] * (1 + value_function[next_state])
-                                for next_state in range(1, num_states)) for action in range(len(actions))]
+        # Calculate the value of the current state
+        v = value_function[s]
+        new_value1 = sum(trans_prob[s, i + 1, 0] * (1 + value_function[i + 1]) for i in range(num_states - 1))
+        new_value2 = sum(trans_prob[s, i + 1, 1] * (1 + value_function[i + 1]) for i in range(num_states - 1))
 
-        # Update the policy with the action leading to the highest expected return
-        best_action_index = np.argmax(expected_returns)
-        policy[s] = actions[best_action_index]
+        # Update the value function for the state
+        new_value = max(new_value1, new_value2)
+        delta = max(delta, abs(v - new_value))
+        value_function[s] = new_value
 
-        # Check if the policy has changed
-        if old_action != policy[s]:
-            is_policy_stable = False
-    print('after policy improvement')
-    
-    if iterations > 1000:  # prevent infinite loops
+    # Check for convergence or excessive iterations
+    if delta < delta_threshold:
+        break
+    if iterations > 1000:
         print("Stopping due to too many iterations")
         break
 
-def specify_point(region_index):#Checked and proofed. 
+
+print('Value iteration completed.')
+
+for s in range(num_states):
+    theta_index = np.floor(s/1000)
+    x_index = np.floor((s - 1000*theta_index)/100)
+    theta_dot_index = np.floor((s - 1000*theta_index - 100*x_index)/10)
+    x_dot_index = s - 1000*theta_index - 100*x_index - 10*theta_dot_index
+    
+    if theta_index < 1 or theta_index > 6 or x_index < 1 or x_index > 3 or theta_dot_index < 1 or theta_dot_index > 3 \
+        or x_dot_index < 1 or x_dot_index > 3: 
+            continue
+
+    new_action_values = np.zeros((2,1))
+    
+    new_value = 0
+    for i in range(num_states-1):
+        new_value += trans_prob[s,i+1,0]*(1+value_function[i+1])
+    new_action_values[0] = new_value
+    new_value = 0
+    for i in range(num_states-1):
+        new_value += trans_prob[s,i+1,1]*(1+value_function[i+1])
+    new_action_values[1] = new_value
+    
+    policy[s] = actions[np.argmax(new_action_values)]
+
+def specify_point(region_index):#Checked and proofed. post processing 
     # Constants for conversion
     DEG_TO_RAD = np.pi / 180
     THETA_VALUES = [-12, -3.5, -0.5, 0.5, 3.5, 12]# Angle is discretized into bins of 0, ±1, ±6, and ±12 degrees
@@ -270,24 +259,22 @@ def specify_point(region_index):#Checked and proofed.
 # and the corresponding value from the value function.
 results = []
 i = 0
-results = np.zeros((162,5)) # 162 tabulated region x 5 columns (4 states + 1 value)
+results = np.zeros((162,5))      # 162 tabulated region x 5 columns (4 states + 1 value)
 for theta_index in range(1, 7):  # Assuming theta_index goes from 1 to 6 inclusive
     for x_index in range(1, 4):  # Assuming x_index goes from 1 to 3 inclusive
         for theta_dot_index in range(1, 4):  # Assuming theta_dot_index goes from 1 to 3 inclusive
             for x_dot_index in range(1, 4):  # Assuming x_dot_index goes from 1 to 3 inclusive
                 # Reconstruct the state index 's' from the valid indices
                 s = (theta_index * 1000) + (x_index * 100) + (theta_dot_index * 10) + x_dot_index
-                
                 # Now 's' is guaranteed to be in the valid range, so we can skip the 'if' check
                 point_index = specify_point(s)
                 point_array = np.array(point_index)
                 point_array = np.append(point_array, value_function[s])
-                
                 # Store the results
                 results[i, :] = point_array
                 i += 1
 
-#---End of Policy Itertation----------------------------------------------------------------------------------------------------------------
+#---End of Value Itertation----------------------------------------------------------------------------------------------------------------
 #---Plotting Session-------------------------------------------------------------------------------------------------------------------------  
 # results[:,2]--->accesses all rows and the third column, which is our discretized theta_dot values for each state
 # results[:,3]--->accesses all rows and the fourth column, which is our discretized x_dot values for each state. 
@@ -320,14 +307,14 @@ zi = griddata((x, y), z, (xi, yi), method='cubic')
 # necessary because the value function may not be available at every point in the space, 
 # so griddata fills in the gaps to create a smooth surface:
 
-fig = plt.figure(figsize=(20, 10),dpi=300)
+fig = plt.figure(figsize=(20, 10), dpi=300)
 ax = fig.add_subplot(111, projection='3d')
 surf = ax.plot_surface(xi, yi, zi, cmap='viridis')
 cbar = fig.colorbar(surf, shrink=0.7, aspect=21) 
 
 labelsize = 6  #choose the size that fits best
 theta_dot_value_high=  50
-theta_dot_value_mid=    0
+theta_dot_value_mid =   0
 theta_dot_value_low = -50  
 x_dot_value = 0  # Example value
 
@@ -348,3 +335,68 @@ ax.tick_params(axis='y', labelsize=7)
 ax.tick_params(axis='z', labelsize=7)
 plt.tight_layout()
 plt.show()
+
+#----------------------------------------------------------------------------------------------------------------------
+i = 0
+policy_results = np.zeros((162, 5))
+for s in range(num_states):
+    theta_index = s // 1000
+    x_index = (s % 1000) // 100
+    theta_dot_index = (s % 100) // 10
+    x_dot_index = s % 10
+
+    # Check if the state is within the specified ranges
+    if not (1 <= theta_index <= 6 and 1 <= x_index <= 3 and 
+            1 <= theta_dot_index <= 3 and 1 <= x_dot_index <= 3):
+        continue
+
+    # Store the current state's data
+    policy_results[i] = [theta_index, x_index, theta_dot_index, x_dot_index, policy[s]]
+    i += 1
+
+# Filter and retain rows where both theta_dot_index and x_dot_index are 3
+#filtered_results_p = policy_results[(policy_results[:, 2] == 2) & (policy_results[:, 3] == 2)] #case1
+#filtered_results_p = policy_results[(policy_results[:, 2] == 1) & (policy_results[:, 3] == 2)] #case2
+filtered_results_p = policy_results[(policy_results[:, 2] == 3) & (policy_results[:, 3] == 2)] #case3
+
+optimal_policy = np.zeros((3, 6))
+# Iterate directly over rows of filtered_results_p
+for row in filtered_results_p:
+    # Subtract 1 from the indices to convert from 1-based to 0-based indexing
+    x_index = int(row[1] - 1)
+    y_index = int(row[0] - 1)
+  # Update the optimal policy matrix
+    optimal_policy[x_index, y_index] = row[4]
+
+print('Optimal policy:')
+print(optimal_policy)
+
+# Assuming 'x' and 'y' are predefined arrays or lists
+xi = np.linspace(min(x), max(x), 2)
+yi = np.linspace(min(y), max(y), 2)
+xi, yi = np.meshgrid(xi, yi)
+
+# Create a figure and axis for the plot
+fig, ax = plt.subplots(figsize=(8, 6), dpi=300)
+
+# Iterate over filtered_results to plot arrows
+for i in range(len(filtered_results)):
+    x_pos = filtered_results[i, 0] * 180 / np.pi # Convert from radians to degrees
+    y_pos = filtered_results[i, 1]
+    # Determine the direction of the arrow
+    x_direct = -1 if filtered_results_p[i, 4] == -10 else 1
+    y_direct = 0
+    # Add the arrow to the plot
+    ax.quiver(x_pos, y_pos, x_direct, y_direct, angles='xy', scale_units='xy', scale=1, color='blue')
+
+# Set labels and title
+plt.xlabel('Pole Angle θ (degrees)')
+plt.ylabel('Cart Position x (meters)')
+#plt.title(r'Optimal Policy ($\dot{\theta}$=0.0°/s, $\dot{x}$=0.0m/s) (Value Iteration)') #case 1
+#plt.title(r'Optimal Policy ($\dot{\theta}$<50°/s, $\dot{x}$=0.0m/s) (Value Iteration)') #case 2
+plt.title(r'Optimal Policy ($\dot{\theta}$>50°/s, $\dot{x}$=0.0m/s) (Value Iteration)') #case 3
+plt.show()
+
+
+
+
